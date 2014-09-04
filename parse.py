@@ -1,27 +1,24 @@
 #!/usr/bin/env python
 """
-Parse json files from another tool and send to statsd
+Parse json files from another tool (boom) and send to statsd
 """
 import statsd
 import subprocess
 import json
+import yaml
 
-REPEAT_COUNT = 30
+with open('conf.yaml', 'r') as handle:
+    data = yaml.load(handle)
 
-data = {
-    'cpt-tamu-edu': [
-        ['landing', 'https://cpt.tamu.edu/'],
-        ['owncloud', 'https://cpt.tamu.edu/owncloud/'],
-    ]
-}
-
-c = statsd.StatsClient('biobio-monitor.tamu.edu', 8125)
-for site in data:
-    for (name, url) in data[site]:
+c = statsd.StatsClient(data['global']['statsd']['host'],
+                       data['global']['statsd']['port'])
+for site in data['urls']:
+    for (name, url) in data['urls'][site]:
         command = ['boom', '-m', 'GET', '--json-output', '-n',
-                   str(REPEAT_COUNT), url]
+                   str(data['global']['requests']), url]
         output = subprocess.check_output(command)
-        data = json.loads(output)
-        for key in data:
+        ab_data = json.loads(output)
+        for key in ab_data:
             stat_name = 'page_load.%s.%s.%s' % (site, name, key)
+            print "%s %s" % (stat_name, ab_data[key])
             c.gauge(stat_name, data[key])

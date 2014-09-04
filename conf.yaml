@@ -1,0 +1,12 @@
+---
+global:
+    requests: 3
+    statsd:
+        host: biobio-monitor.tamu.edu
+        port: 8125
+urls:
+    cpt-tamu-edu:
+        - - landing
+          - https://cpt.tamu.edu/
+        - - owncloud
+          - https://cpt.tamu.edu/owncloud/
