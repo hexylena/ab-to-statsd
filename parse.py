@@ -20,5 +20,4 @@ for site in data['urls']:
         ab_data = json.loads(output)
         for key in ab_data:
             stat_name = 'page_load.%s.%s.%s' % (site, name, key)
-            print "%s %s" % (stat_name, ab_data[key])
             c.gauge(stat_name, data[key])
